@@ -1,0 +1,98 @@
+
+<!-- email_template.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email Template</title>
+    <style>
+      /* Add your CSS styles here */
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+      }
+
+      .email-content {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f6f6f8;
+        border-radius: 5px;
+        margin-top: 10px;
+      }
+
+      .child-content {
+        background-color: white;
+        padding: 32px;
+        word-wrap: break-word;
+        text-align: center;
+      }
+
+      h1 {
+        color: #333;
+        font-size: 25px;
+        margin-left: 20px;
+        vertical-align: middle;
+      }
+
+      p {
+        margin-bottom: 10px;
+        color: #555;
+      }
+
+      .report-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #6358ce;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+
+      .flagged {
+        margin-top: -5px;
+      }
+
+      .btn-forum-post {
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+        color: white;
+      }
+
+      .content-header-forum-moderation {
+        margin: auto;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="email-content">
+      <div class="child-content">
+        <div class="content-header-forum-moderation">
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/1670/1670287.png"
+            alt="warning"
+            style="width: 50px; height: 50px; vertical-align: middle"
+          />
+          <h1>A New Forum post has been flagged!</h1>
+        </div>
+
+        <div class="content-body-moderation">
+          <p>
+            We are notifying you that the following forum post has been flagged
+            for moderation on: {COURSENAME}
+          </p>
+        </div>
+        <p>
+          The Forum post was flagged at {TIMEREPORT} <br />
+          By user: {LINKUSER}
+        </p>
+        <div class="btn-forum-post">
+          <p>{REPORT-BUTTON}</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
