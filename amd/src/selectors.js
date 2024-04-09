@@ -23,7 +23,7 @@
 
 const Selectors = {
     actions: {
-        reportPost: '[data-action="forummoderation-reportpost"]',
+        reportPost: '[data-action="forummoderation-reportpost"]'
     },
 };
 

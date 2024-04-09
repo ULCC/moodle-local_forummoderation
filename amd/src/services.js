@@ -44,7 +44,7 @@ class Services {
     }
     checkForumPost(id, callback) {
         this.jquery({
-            url: M.cfg.wwwroot + "/local/forummoderation/ajax.php/"+id,
+            url: M.cfg.wwwroot + "/local/forummoderation/ajax.php/" + id,
             type: 'GET',
             processData: false,
             contentType: false,
@@ -53,6 +53,22 @@ class Services {
             },
             error: function (xhr, status, error) {
                 // Handle errors
+                callback(error);
+            }
+        });
+    }
+
+    checkForumPostUser(id, callback) {
+        this.jquery({
+            url: M.cfg.wwwroot + "/local/forummoderation/ajax.php?postId=" + id +
+                "&action=check-forumpost-user&sesskey=" + M.cfg.sesskey,
+            type: 'GET',
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                callback(response);
+            },
+            error: function (xhr, status, error) {
                 callback(error);
             }
         });

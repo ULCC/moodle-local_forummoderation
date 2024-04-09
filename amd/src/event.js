@@ -27,14 +27,17 @@ import Selectors from "./selectors";
 import Services from "./services";
 import CustomFormData from "./customformdata";
 import Helpers from "./helpers";
+
 class Event {
-    constructor() {
+    constructor(userid) {
+        this.userid = userid;
         this.reportPostSelector = Selectors.actions.reportPost;
+        this.closeModalSelector = Selectors.actions.closeModal;
         this.eventListeners = {};
     }
 
     init() {
-        new Helpers().createLinkReportModerator();
+        new Helpers().createLinkReportModerator(this.userid);
     }
 
     addEvent(eventType, handler) {
@@ -42,32 +45,42 @@ class Event {
             this.eventListeners[eventType] = [];
             document.addEventListener(eventType, (evt) => {
                 this.eventListeners[eventType].forEach((listener) => {
-                    if (evt.target.closest(listener.selector)) {
-                        listener.handler(evt);
+                    if (listener.selectors.some(selector => evt.target.matches(selector))) {
+                        listener.handler.call(this, evt);
                     }
                 });
             });
         }
-        this.eventListeners[eventType].push({ selector: this.reportPostSelector, handler: handler });
+
+        this.eventListeners[eventType].push({
+            selectors: [
+                this.reportPostSelector, this.closeModalSelector
+            ], handler: handler
+        });
     }
 
     reportPostForum(evt) {
-        evt.preventDefault();
-        const spinner = new Helpers().createSpinner("spinner");
-        const parentElement = evt.target;
-        parentElement.insertAdjacentElement('afterend', spinner);
-        $(evt.target).hide();
-        $(spinner).show();
+        if (evt.target.closest(this.reportPostSelector)) {
 
-        const postId = parentElement.getAttribute("data-post-id");
-        const message = "";
-        const formData = this.prepareFormDataReport(postId, message);
-        new Services($.ajax).reportPost(formData, res => {
-            const { success } = JSON.parse(res);
-            if (success) {
-                window.location.reload();
-            }
-        });
+            evt.preventDefault();
+            const spinner = new Helpers().createSpinner("spinner");
+            const parentElement = evt.target;
+            parentElement.insertAdjacentElement('afterend', spinner);
+            $(evt.target).hide();
+            $(spinner).show();
+
+            const postId = parentElement.getAttribute("data-post-id");
+            const message = "";
+            const formData = this.prepareFormDataReport(postId, message);
+            localStorage.setItem("success", true);
+            new Services($.ajax).reportPost(formData, res => {
+                const { success } = JSON.parse(res);
+                if (success) {
+                    window.location.reload();
+                }
+            });
+        }
+
     }
 
     prepareFormDataReport(postId, message) {

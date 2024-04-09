@@ -1,21 +1,22 @@
-.spinner{
+.spinner {
     position: relative;
-    display:none;
+    display: none;
     transform: translate(-50%, -50%);
-    height : 30px;
-    width : 30px;
-    border-radius : 50%;
-    border : 10px solid #ccc;
-    border-top-color : #007bff;
-    animation : spin 1s linear infinite;
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+    border: 10px solid #ccc;
+    border-top-color: #007bff;
+    animation: spin 1s linear infinite;
 }
 
-@keyframes spin{
-    0%{
-        transform : rotate(0deg);
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
     }
-    100%{
-        transform : rotate(360deg);
+
+    100% {
+        transform: rotate(360deg);
     }
 }
 
@@ -59,4 +60,23 @@
     border-right: var(--size) solid transparent;
     border-top: var(--size) solid black;
     top: 55%;
+}
+
+
+/* custom button okay */
+.btn-ok-forummoderation {
+    margin: auto;
+    background-color: #524eba;
+    border: 2px solid #524eba;
+    color: white;
+    text-align: center;
+    display: flex;
+    padding: 10px 30px;
+    border-radius: 5px;
+    justify-items: center;
+}
+
+.btn-ok-forummoderation:hover {
+    color: #CCCCCC;
+    background-color: #524ebc;
 }

@@ -17,28 +17,28 @@ if (!isloggedin()) {
 }
 
 $pageparams = [
-    'courseid' => required_param('courseId', PARAM_INT),
     "action" => required_param("action", PARAM_TEXT),
 ];
-
-$course = get_course($pageparams['courseid']);
-$postid = required_param("postId", PARAM_INT);
 
 // Authentication.
 require_course_login($course, false);
 
 if (confirm_sesskey()) {
     if ($pageparams["action"] === 'report-post') {
-        local_forummoderation_send($course, $postid);
+        $course = get_course(required_param("courseId", PARAM_INT));
+        require_course_login($course, false);
+        $postid = required_param("postId", PARAM_INT);
+       
         $message = required_param("message", PARAM_TEXT);
-        $result = local_forummoderation_save_forum($USER->id, $postid, $message);
+        $result = local_forummoderation_save_forum($USER->id, $postid, $message,$course);
         if ($result) {
             echo json_encode(local_forummoderation_response("success", true));
         } else {
             echo json_encode(local_forummoderation_response("error", false));
         }
-    } else if ($pageparams["action"] === 'check-forumpost') {
-        $data = local_forummoderation_check_forum_post($postid);
+    } else if ($pageparams["action"] === 'check-forumpost-user') {
+        $postid = required_param("postId", PARAM_INT);
+        $data = local_forummoderation_check_user_comment_post($postid);
         echo json_encode(local_forummoderation_response_record("success", true, $data));
     } else if ($pageparams["action"] === 'check-approved') {
         $data = local_forummoderationi_check_approved($postid);

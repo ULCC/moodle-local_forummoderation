@@ -23,13 +23,13 @@
 
 import Event from "./event";
 
-export const init = () => {
-
-    var event = new Event();
+export const init = (userid) => {
+    var event = new Event(userid);
 
     // init
     event.init();
     event.addEvent("click", event.reportPostForum.bind(event));
+
 };
 
 

@@ -38,3 +38,28 @@ $string["forummoderation:selectedrole_desc"] = "These roles will be available fo
 
 // set notifcation preferences
 $string['messageprovider:forummoderation'] = 'Set report forum moderation notifcation';
+
+// setting page
+$string['setting_page:category'] = 'Forum Moderation';
+$string['setting_page:forum'] = 'Dashboard Moderator';
+
+// table column
+$string["table:column1"] = "Forum Name";
+$string["table:column2"] = "Disscusion Name";
+$string["table:column3"] = "Report By";
+$string["table:column4"] = "Report At";
+$string["table:column5"] = "Approved By";
+$string["table:column6"] = "Approved At";
+$string["table:column7"] = "Action";
+
+// message string
+$string["message:approved"] = "This report has been aprroved";
+$string["message:deleted"] = "This report has been deleted";
+$string["message:reported"] = "Please state your reasons for reporting this post";
+$string["message:btnreported"] = "Submit Report";
+$string["message:alertreported_title"] = "Thanks for reporting";
+$string["message:alertreported_desc"] = "We'll review your report and take action if there is a violation of our Community Guidelines";
+
+// string for template email
+$string["message:modal_title"]="Post Flagged to Moderator";
+$string["message:modal_body"]="This post has been flagged to Moderator";
