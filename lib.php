@@ -14,8 +14,6 @@ function local_forummoderation_extend_navigation(global_navigation $nav)
     global $USER, $PAGE, $SESSION, $CFG;
     $CFG->cachejs = false;
     $config = (int) get_config("local_forummoderation", "moderations");
-    $selectedrole = get_config("local_forummoderation", "selectedrole");
-
     if ($PAGE->context->contextlevel == CONTEXT_MODULE) {
 
         $PAGE->requires->jquery();
@@ -85,13 +83,14 @@ function local_forummoderation_get_user_role_moderation()
     global $DB;
     $selectedroles = get_config("local_forummoderation", "selectedrole");
     $sql = "
-        SELECT u.id,u.firstname,u.lastname,r.id as roleid,r.shortname from mdl_user as u
+        SELECT u.id,u.firstname,u.lastname,r.id as roleid,
+        r.shortname,rs.contextid from mdl_user as u
         INNER JOIN {role_assignments} as rs
         on rs.userid=u.id
         INNER JOIN {role} as r
         ON r.id=rs.roleid
-        WHERE r.id=:id";
-    $moderation = $DB->get_records_sql($sql, ["id" => $selectedroles]);
+        WHERE r.id=:id and rs.contextid=:contextid";
+    $moderation = $DB->get_records_sql($sql, ["id" => $selectedroles, "contextid" => 1]);
 
     return array_values($moderation);
 }
@@ -222,7 +221,7 @@ function local_forummoderation_via_email($users, $subject, $postid, $course)
 }
 function local_forummoderation_via_notifcation($users, $subject, $course, $postid)
 {
-    global $CFG;
+    global $CFG, $USER;
     $from_user = core_user::get_noreply_user();
     $postforum = local_forummoderation_post_forum($postid);
     $d = $postforum->discussion;
@@ -231,20 +230,26 @@ function local_forummoderation_via_notifcation($users, $subject, $course, $posti
         unset($user->email);
         return $user->popupnotif === true;
     });
+
     foreach ($filterusers as $key => $user) {
         $email_user = $user;
-        $html_email_template = '
-                 Dear {FULLNAME},
-                <br><br>
-                This post was made by the user: {POSTFORUM},
-                Click the link below to review this post. Please note that this may have already been deleted or modified by another forum moderator.
-                If you see nothing wrong with this post, or encounter an error, this notification can be ignored. {REPORT-LINK}';
-
-        $report_link = $CFG->wwwroot . '/local/forummoderation/viewreport.php?id=3';
-        $report_link = "<a href='$report_link'>$report_link</a>";
+        $date = date('H:i d/m/Y', time());
+        $linkuser = new moodle_url("/user/profile.php", ["id" => $USER->id]);
+        $html_email_template = file_get_contents(new moodle_url('/local/forummoderation/notification.html'));
+        $report_link = $CFG->wwwroot . '/mod/forum/discuss.php?d=' . $d . '#p' . $postid . '';
+        $linkcourse = $CFG->wwwroot . '/course/view.php?id=' . $course->id;
+        $report_button = "<a href='$report_link' class='report-button' style='color: white;'>" . get_string("forummoderation:gotopost", "local_forummoderation") . "</a>";
+        $link_user_herf = "<a href='$linkuser'>$linkuser</a>";
+        $url_icon_warning = new moodle_url('/local/forummoderation/warning.png');
+        $linkhrefcourse = "<a href='$linkcourse'>$course->fullname</a>";
         $html_email_template = str_replace('{FULLNAME}', "$email_user->firstname $email_user->lastname", $html_email_template);
-        $html_email_template = str_replace('{REPORT-LINK}', $report_link, $html_email_template);
+        $html_email_template = str_replace('{REPORT-BUTTON}', $report_button, $html_email_template);
         $html_email_template = str_replace('{POSTFORUM}', $postforum->postname, $html_email_template);
+        $html_email_template = str_replace('{TIMEREPORT}', $date, $html_email_template);
+        $html_email_template = str_replace('{BODYEMAIL}', local_forummoderation_string::get("message:email_body"), $html_email_template);
+        $html_email_template = str_replace('{LINKUSER}', $link_user_herf, $html_email_template);
+        $html_email_template = str_replace('{LINKICON}', $url_icon_warning, $html_email_template);
+        $html_email_template = str_replace('{COURSENAME}', $linkhrefcourse, $html_email_template);
         // Prepare and send the message
         $eventdata = new \core\message\message();
         $eventdata->component = 'local_forummoderation';
