@@ -14,6 +14,7 @@ function local_forummoderation_extend_navigation(global_navigation $nav)
     global $USER, $PAGE, $SESSION, $CFG;
     $CFG->cachejs = false;
     $config = (int) get_config("local_forummoderation", "moderations");
+    $selectedrole = (int) get_config("local_forummoderation", "selectedrole");
     if ($PAGE->context->contextlevel == CONTEXT_MODULE) {
 
         $PAGE->requires->jquery();
@@ -26,10 +27,10 @@ function local_forummoderation_extend_navigation(global_navigation $nav)
         }
     }
     if ($PAGE->context->contextlevel == CONTEXT_USER && strpos($PAGE->url, '/message/notificationpreferences.php?userid=' . $USER->id) !== false) {
-        if (!has_capability('moodle/user:viewdetails', context_system::instance())) {
+        $checkrole = local_forummoderation_check_role($selectedrole, $USER->id);
+        if ($selectedrole == 0 || !$checkrole) {
             $PAGE->requires->js_call_amd('local_forummoderation/preferences', 'init');
         }
-
     }
 
 }
@@ -105,7 +106,7 @@ function local_forummoderation_send($course, $postid)
     }
     $user = $DB->get_record("user", ["id" => $USER->id]);
     $fullname = $user->firstname . " " . $user->lastname;
-    $subject = 'New Forum post has been flagged! by' . $fullname . ' on the ' . $course->fullname . '';
+    $subject = 'New Forum post has been flagged! by ' . $fullname . ' on the ' . $course->fullname . '';
 
     $users = [];
     foreach ($moderation as $row) {
@@ -158,7 +159,6 @@ function local_forummoderation_check_user_comment_post($postid)
 function local_forummoderation_save_forum($userid, $postid, $message, $course)
 {
     global $DB;
-
     $checkexist = $DB->get_record("local_forummoderation", ["forumid" => $postid]);
 
     if (!$checkexist) {

@@ -30,14 +30,14 @@ $string['reporttext'] = 'Report to moderator';
 
 // set title forum moderation who email recipients
 $string["forummoderation:reportenabled"] = "Reporting enabled";
-$string['forummoderation:reportenabled_desc'] = 'If enabled users can report forum posts for moderation';
+$string['forummoderation:reportenabled_desc'] = 'If enabled, users can report forum posts for moderation';
 $string["forummoderation:gotopost"] = "Go to Forum Post";
 
 $string["forummoderation:selectedrole"] = "Selectable roles";
 $string["forummoderation:selectedrole_desc"] = "These roles will be available for selection to receive notifications";
 
-// set notifcation preferences
-$string['messageprovider:forummoderation'] = 'Set report forum moderation notifcation';
+// set notification preferences
+$string['messageprovider:forummoderation'] = 'Set notification preferences for the forum moderation toolset';
 
 // setting page
 $string['setting_page:category'] = 'Forum Moderation';
@@ -45,21 +45,21 @@ $string['setting_page:forum'] = 'Dashboard Moderator';
 
 // table column
 $string["table:column1"] = "Forum Name";
-$string["table:column2"] = "Disscusion Name";
-$string["table:column3"] = "Report By";
-$string["table:column4"] = "Report At";
+$string["table:column2"] = "Discussion Name";
+$string["table:column3"] = "Reported By";
+$string["table:column4"] = "Reported At";
 $string["table:column5"] = "Approved By";
 $string["table:column6"] = "Approved At";
 $string["table:column7"] = "Action";
 
 // message string
-$string["message:approved"] = "This report has been aprroved";
-$string["message:deleted"] = "This report has been deleted";
+$string["message:approved"] = "Forum Moderator: {$ModeratorName} has approved this post";
+$string["message:deleted"] = "Forum Moderator: {$ModeratorName} has deleted this post";
 $string["message:reported"] = "Please state your reasons for reporting this post";
 $string["message:btnreported"] = "Submit Report";
-$string["message:alertreported_title"] = "Thanks for reporting";
-$string["message:alertreported_desc"] = "We'll review your report and take action if there is a violation of our Community Guidelines";
+$string["message:alertreported_title"] = "Thank you for reporting your concern on this post.";
+$string["message:alertreported_desc"] = "A forum moderator shall review your report and take action if there is a violation against the Community Guidelines";
 
 // string for template email
-$string["message:modal_title"]="Post Flagged to Moderator";
-$string["message:modal_body"]="This post has been flagged to Moderator";
+$string["message:modal_title"] = "Forum post flagged for concern";
+$string["message:modal_body"] = "This post has been flagged to the Forum moderation team";
