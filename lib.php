@@ -9,6 +9,13 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once $CFG->dirroot . '/course/lib.php';
 require_once $CFG->dirroot . '/local/forummoderation/classes/string.php';
+
+/**
+ * @feature phase 1
+ * Extends Moodle's navigation bar based on specific context and configuration.
+ * @param global_navigation $nav
+ * @return void
+ */
 function local_forummoderation_extend_navigation(global_navigation $nav)
 {
     global $USER, $PAGE, $SESSION, $CFG;
@@ -32,9 +39,15 @@ function local_forummoderation_extend_navigation(global_navigation $nav)
             $PAGE->requires->js_call_amd('local_forummoderation/preferences', 'init');
         }
     }
-
 }
 
+/**
+ * @feature phase 1
+ * Prepares a simple response for forum moderation actions.
+ * @param string $message The message to include in the response.
+ * @param bool $success Indicates whether the action was successful.
+ * @return array An associative array containing the message and success status.
+ */
 function local_forummoderation_response($message, $success)
 {
     return [
@@ -42,6 +55,15 @@ function local_forummoderation_response($message, $success)
         "success" => $success,
     ];
 }
+
+/**
+ * @feature phase 1
+ * Prepares a response with additional data for forum moderation actions.
+ * @param string $message The message to include in the response.
+ * @param bool $success Indicates whether the action was successful.
+ * @param mixed $data Additional data to be included in the response.
+ * @return array An associative array containing the message, success status, and data.
+ */
 function local_forummoderation_response_record($message, $success, $data)
 {
     return [
@@ -51,9 +73,21 @@ function local_forummoderation_response_record($message, $success, $data)
     ];
 }
 
+/**
+ * @feature phase 2
+ * Records the approval status of a forum post.
+ * Updates a forum post's approval status in the database, along with the
+ * approving user and timestamp.
+ *
+ * @param int $postid The ID of the forum post.
+ * @param int $approved The approval status (1 for approved, 0 for not approved).
+ * @param int $userid The ID of the user who approved (or unapproved) the post.
+ * @return bool True if the record was successfully inserted, false otherwise.
+ */
 function local_forummoderation_send_approved($postid, $approved, $userid)
 {
     global $DB;
+
     $forumposts = new stdClass();
     $forumposts->id = $postid;
     $forumposts->approved = $approved;
@@ -61,12 +95,28 @@ function local_forummoderation_send_approved($postid, $approved, $userid)
     $forumposts->approved_at = time();
     return $DB->insert_record("local_forummoderation", $forumposts);
 }
+
+/**
+ * @feature phase 2
+ * Checks the approval status of a forum post.
+ *
+ * @param int $postid The ID of the forum post to check.
+ * @return object|false The forum post record if found, false otherwise.
+ */
 function local_forummoderationi_check_approved($postid)
 {
     global $DB;
     $data = $DB->get_record("forum_posts", ["id" => $postid]);
     return $data;
 }
+
+/**
+ * @feature phase 1
+ * Checks if a user is assigned a specific role.
+ * @param int $role The ID of the role to check.
+ * @param int $userid The ID of the user to check.
+ * @return object|false Returns the role assignment record if found, or false if not.
+ */
 function local_forummoderation_check_role($role, $userid)
 {
     global $DB;
@@ -79,13 +129,18 @@ function local_forummoderation_check_role($role, $userid)
     return $checkrole;
 }
 
+/**
+ * @feature phase 1
+ * Retrieves users assigned the specified moderation role within the global context.
+ * @return array
+ */
 function local_forummoderation_get_user_role_moderation()
 {
     global $DB;
     $selectedroles = get_config("local_forummoderation", "selectedrole");
     $sql = "
         SELECT u.id,u.firstname,u.lastname,r.id as roleid,
-        r.shortname,rs.contextid from mdl_user as u
+        r.shortname,rs.contextid from {user} as u
         INNER JOIN {role_assignments} as rs
         on rs.userid=u.id
         INNER JOIN {role} as r
@@ -95,6 +150,16 @@ function local_forummoderation_get_user_role_moderation()
 
     return array_values($moderation);
 }
+
+/**
+ * @feature phase 1
+ * Sends forum post flagging notifications to moderators.
+ * Retrieves users with the designated moderation role and sends them notifications
+ * (email and/or popup) about a flagged forum post.
+ *
+ * @param object $course The course object the forum post belongs to.
+ * @param int $postid The ID of the flagged forum post.
+ */
 function local_forummoderation_send($course, $postid)
 {
     global $CFG, $DB, $USER;
@@ -138,6 +203,14 @@ function local_forummoderation_send($course, $postid)
     local_forummoderation_via_notifcation($users, $subject, $course, $postid);
 }
 
+/**
+ * @feature phase 1
+ * Fetches a forum post and its associated moderation data.
+ * Retrieves details of a forum post, including any moderation actions (like flagging or approval), from the database.
+ *
+ * @param int $postid The ID of the forum post.
+ * @return object|false The post data including moderation details, or false if not found.
+ */
 function local_forummoderation_check_user_comment_post($postid)
 {
     global $DB, $USER;
@@ -147,8 +220,8 @@ function local_forummoderation_check_user_comment_post($postid)
     lf.message,lf.approved,lf.approved_by,
     lf.approved_at,
     lf.reported,lf.reported_by,lf.reported_at
-    FROM mdl_forum_posts as fp
-    LEFT JOIN mdl_local_forummoderation as lf ON
+    FROM {forum_posts} as fp
+    LEFT JOIN {local_forummoderation} as lf ON
     fp.id=lf.forumid where fp.id=:id
     ";
 
@@ -156,6 +229,16 @@ function local_forummoderation_check_user_comment_post($postid)
     return $data;
 }
 
+/**
+ * @feature phase 1
+ * Flags a forum post and sends notifications to moderators (if not already flagged).
+ *
+ * @param int $userid The ID of the user flagging the post.
+ * @param int $postid The ID of the forum post being flagged.
+ * @param string $message The message associated with the flag.
+ * @param object $course The course object the forum post belongs to.
+ * @return bool True if the flag was successfully recorded, false otherwise.
+ */
 function local_forummoderation_save_forum($userid, $postid, $message, $course)
 {
     global $DB;
@@ -174,18 +257,35 @@ function local_forummoderation_save_forum($userid, $postid, $message, $course)
     $result = $DB->insert_record("local_forummoderation", $forumpost);
     return $result;
 }
+
+/**
+ * @feature phase 1
+ * Retrieves details of a forum post for moderation.
+ *
+ * @param int $postid The ID of the forum post.
+ * @return object|false The forum post details (including course and discussion), or false if not found.
+ */
 function local_forummoderation_post_forum($postid)
 {
     global $DB;
     $sql = "
-    SELECT fm.id,fm.discussion,fm.subject,f.course,f.name,fm.message,fd.name as postname FROM mdl_forum_posts as fm
-    INNER JOIN mdl_forum_discussions as fd ON fd.id=fm.discussion
-    INNER JOIN mdl_forum as f ON f.id=fd.forum WHERE fm.id=:postid;
+    SELECT fm.id,fm.discussion,fm.subject,f.course,f.name,fm.message,fd.name as postname FROM {forum_posts} as fm
+    INNER JOIN {forum_discussions} as fd ON fd.id=fm.discussion
+    INNER JOIN {forum} as f ON f.id=fd.forum WHERE fm.id=:postid;
     ";
     $postforum = $DB->get_record_sql($sql, ["postid" => $postid]);
     return $postforum;
 }
 
+/**
+ * @feature phase 1
+ * Sends email notifications to moderators about a flagged forum post.
+ *
+ * @param array $users An array of user objects representing moderators.
+ * @param string $subject The subject of the email notification.
+ * @param int $postid The ID of the flagged forum post.
+ * @param object $course The course object the forum post belongs to.
+ */
 function local_forummoderation_via_email($users, $subject, $postid, $course)
 {
     global $CFG, $DB, $USER;
@@ -219,6 +319,16 @@ function local_forummoderation_via_email($users, $subject, $postid, $course)
     }
 
 }
+
+/**
+ * @feature phase 1
+ * Sends email notifications to moderators about a flagged forum post.
+ *
+ * @param array $users An array of user objects representing moderators.
+ * @param string $subject The subject of the email notification.
+ * @param int $postid The ID of the flagged forum post.
+ * @param object $course The course object the forum post belongs to.
+ */
 function local_forummoderation_via_notifcation($users, $subject, $course, $postid)
 {
     global $CFG, $USER;
@@ -269,3 +379,4 @@ function local_forummoderation_via_notifcation($users, $subject, $course, $posti
     }
 
 }
+
