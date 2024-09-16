@@ -19,7 +19,6 @@ require_once $CFG->dirroot . '/local/forummoderation/classes/string.php';
 function local_forummoderation_extend_navigation(global_navigation $nav)
 {
     global $USER, $PAGE, $SESSION, $CFG;
-    $CFG->cachejs = false;
     $config = (int) get_config("local_forummoderation", "moderations");
     $selectedrole = (int) get_config("local_forummoderation", "selectedrole");
     if ($PAGE->context->contextlevel == CONTEXT_MODULE) {
