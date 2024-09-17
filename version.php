@@ -28,4 +28,4 @@ $plugin->component = 'local_forummoderation';
 $plugin->release = '0.1.0';
 $plugin->version = 2024091700;
 $plugin->requires = 2022112800;
-$plugin->maturity = MATURITY_BETA;
+$plugin->maturity = MATURITY_STABLE;
